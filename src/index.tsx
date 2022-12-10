@@ -9,7 +9,7 @@ const root = createRoot(document.getElementById("root"));
 
 root.render(
   <StrictMode>
-    <main className={"w-screen h-screen p-8"}>
+    <main className={"p-8 bg-gray-50 h-screen w-screen"}>
       <CharactersTable />
     </main>
   </StrictMode>,
