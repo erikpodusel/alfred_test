@@ -7,6 +7,8 @@ export const useCharacters = (params: PeopleParams | undefined) => {
   const [loading, setLoading] = useState(false);
 
   const fetchPeople = useCallback(() => {
+    setLoading(true);
+
     getPeople(params)
       .then(({ data }) => {
         setPeople(data);
@@ -18,8 +20,6 @@ export const useCharacters = (params: PeopleParams | undefined) => {
   }, [params, setPeople]);
 
   useEffect(() => {
-    setLoading(true);
-
     fetchPeople();
 
     return () => {
