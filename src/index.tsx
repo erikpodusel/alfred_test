@@ -5,11 +5,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { CharactersTable } from "./components/CharactersTable";
 
-const root = createRoot(document.getElementById("root"));
+const root = createRoot(document.getElementById("root") as Element);
 
 root.render(
   <StrictMode>
-    <main className={"p-8 bg-gray-50 h-screen w-screen"}>
+    <main className={"p-8 bg-gray-50 w-screen min-h-screen"}>
       <CharactersTable />
     </main>
   </StrictMode>,

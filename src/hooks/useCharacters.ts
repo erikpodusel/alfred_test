@@ -1,9 +1,8 @@
 import { swapi } from "../swapi";
 import { useEffect, useState } from "react";
 import { PeoplePage, PeopleParams } from "../types";
-import { parseParams } from "../utils/parseParams";
 
-export const useCharacters = (params: PeopleParams) => {
+export const useCharacters = (params: PeopleParams | undefined) => {
   const [people, setPeople] = useState<PeoplePage | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
@@ -24,10 +23,10 @@ export const useCharacters = (params: PeopleParams) => {
     };
   }, [params]);
 
-  const getPeople = async (params: PeopleParams): Promise<{ data: PeoplePage }> => {
-    const parsedParams = parseParams(params);
-
-    return swapi.get(`people${parsedParams}`);
+  const getPeople = async (params: PeopleParams | undefined): Promise<{ data: PeoplePage }> => {
+    return swapi.get(
+      `people?page=${params?.page ?? 1}&${params?.attribute ?? "search"}=${params?.search ?? ""}`,
+    );
   };
 
   return { characters: people, loading };

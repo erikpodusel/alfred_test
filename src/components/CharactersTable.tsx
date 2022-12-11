@@ -1,30 +1,53 @@
-import { FC, useState } from "react";
-import { PeopleParams } from "../types";
+import { FC, useEffect } from "react";
+import { PeopleParams, PersonKeys } from "../types";
 import { CharacterImage } from "./CharacterImage";
 import { Arrow } from "./Arrow";
 import { useCharacters } from "../hooks/useCharacters";
 import { Spinner } from "./Spinner";
 
-interface Props {}
+import { useCachedState } from "../hooks/useCachedState";
+import { SearchInput } from "./SearchInput";
+import { AttributeSelect } from "./AttributeSelect";
 
-export const CharactersTable: FC<Props> = ({}) => {
-  const [params, setParams] = useState<PeopleParams>({
-    page: 1,
-    search: null,
-  });
+export const CharactersTable: FC = () => {
+  const [params, setParams] = useCachedState<PeopleParams>("alfred-test-params");
+  const [personKeys, setPersonKeys] = useCachedState<PersonKeys[]>("alfred-test-person-keys", []);
   const { characters, loading } = useCharacters(params);
 
-  const handleNextPage = () => {
+  useEffect(() => {
+    if (!characters?.results.length) return;
+
+    const character = characters.results[0];
+    const keys: PersonKeys[] = [];
+
+    Object.keys(character).forEach((key: PersonKeys) => keys.push(key));
+
+    setPersonKeys(keys);
+  }, [characters?.results]);
+
+  const setPage = (pageNumber: number) => {
     setParams((prev) => ({
       ...prev,
-      page: prev.page + 1,
+      page: Number(prev?.page ?? 1) + pageNumber,
     }));
   };
 
-  const handlePreviousPage = () => {
+  /**
+   * Sets search param and resets page to 1 so paging restarts on new search
+   * @param searchParam
+   */
+  const setSearch = (searchParam: string) => {
     setParams((prev) => ({
       ...prev,
-      page: prev.page - 1,
+      search: searchParam,
+      page: 1,
+    }));
+  };
+
+  const setAttribute = (attribute: PersonKeys) => {
+    setParams((prev) => ({
+      ...prev,
+      attribute: attribute,
     }));
   };
 
@@ -38,41 +61,55 @@ export const CharactersTable: FC<Props> = ({}) => {
   };
 
   return (
-    <div className={"h-full w-full card p-8 justify-between col"}>
-      {loading ? (
-        <Spinner />
-      ) : (
-        <table className={`flex flex-1`}>
-          <thead className={""}>
-            {/*<tr>*/}
-            {/*  {characters?.results*/}
-            {/*    ? Object.keys(characters?.results[0]).map((resultKey) => (*/}
-            {/*        <td key={resultKey}>{resultKey}</td>*/}
-            {/*      ))*/}
-            {/*    : null}*/}
-            {/*</tr>*/}
-          </thead>
-          <tbody className={"col gap-4"}>
-            {characters?.results.map(({ name, url }) => (
-              <tr key={url} className={"row"}>
-                <td className={"row gap-4"}>
-                  <CharacterImage characterId={getCharacterIdFromUrl(url)} />
-                  <p className={"items-center flex"}>{name}</p>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      <div className="flex justify-self-end">
+    <div className={"w-full card p-0 justify-between col gap-0"}>
+      <table className={`col h-full max-h-full`}>
+        <thead className={"p-4 flex shadow-light"}>
+          <tr className={"justify-between flex-1 sm:row col sm:gap-0 gap-2"}>
+            <td className={"flex col gap-2 sm:row w-full items-center"}>
+              <h1 className={"w-full"}>
+                <strong className={"text-2xl"}>Star Wars characters</strong>
+              </h1>
+              <AttributeSelect
+                onSelect={setAttribute}
+                attributes={personKeys as string[]}
+                value={params?.attribute}
+              />
+              <SearchInput onSearch={setSearch} defaultValue={params?.search} />
+            </td>
+          </tr>
+        </thead>
+        <tbody className={"col overflow-x-scroll max-h-full px-4 gap-4 py-4"}>
+          {loading ? (
+            <tr className={"self-center"}>
+              <td>
+                <Spinner />
+              </td>
+            </tr>
+          ) : (
+            characters?.results.map(({ name, url }) => {
+              const characterId = getCharacterIdFromUrl(url);
+
+              return (
+                <tr key={url} className={"row"}>
+                  <td className={"row gap-4"}>
+                    {characterId ? <CharacterImage characterId={characterId} /> : null}
+                    <p className={"items-center flex"}>{name}</p>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+      <div className="flex border-t border-t-gray-200">
         <div className={"flex flex-1 items-center justify-center"}>
-          {characters?.previous ? <Arrow onClick={handlePreviousPage} /> : null}
+          {characters?.previous ? <Arrow onClick={() => setPage(-1)} /> : null}
+        </div>
+        <div className={"flex flex-1 items-center justify-center py-8"}>
+          <strong>{params?.page ?? "1"}</strong>
         </div>
         <div className={"flex flex-1 items-center justify-center"}>
-          <strong>{params.page}</strong>
-        </div>
-        <div className={"flex flex-1 items-center justify-center"}>
-          {characters?.next ? <Arrow direction={"right"} onClick={handleNextPage} /> : null}
+          {characters?.next ? <Arrow direction={"right"} onClick={() => setPage(1)} /> : null}
         </div>
       </div>
     </div>

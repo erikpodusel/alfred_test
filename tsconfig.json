@@ -3,6 +3,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "baseUrl": "./src",
+    "strictNullChecks": true,
     "paths": {
       "@components/*": [
         "src/components/*"

@@ -1,6 +1,7 @@
 export interface PeopleParams {
   page?: number;
   search?: string;
+  attribute?: PersonKeys;
 }
 
 export interface PeoplePage {
@@ -28,3 +29,5 @@ export interface Person {
   created: string;
   edited: string;
 }
+
+export type PersonKeys = keyof Person;
