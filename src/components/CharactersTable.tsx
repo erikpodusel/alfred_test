@@ -1,13 +1,13 @@
-import { FC, useEffect } from "react";
+import { FC, useCallback, useEffect } from "react";
 import { PeopleParams, PersonKeys } from "../types";
 import { CharacterImage } from "./CharacterImage";
 import { Arrow } from "./Arrow";
 import { useCharacters } from "../hooks/useCharacters";
 import { Spinner } from "./Spinner";
-
 import { useCachedState } from "../hooks/useCachedState";
 import { SearchInput } from "./SearchInput";
 import { AttributeSelect } from "./AttributeSelect";
+import { getCharacterIdFromUrl } from "../utils/getCharacterIdFromUrl";
 
 export const CharactersTable: FC = () => {
   const [params, setParams] = useCachedState<PeopleParams>("alfred-test-params");
@@ -23,42 +23,42 @@ export const CharactersTable: FC = () => {
     Object.keys(character).forEach((key: PersonKeys) => keys.push(key));
 
     setPersonKeys(keys);
-  }, [characters?.results]);
+  }, [characters?.results, setPersonKeys]);
 
-  const setPage = (pageNumber: number) => {
-    setParams((prev) => ({
-      ...prev,
-      page: Number(prev?.page ?? 1) + pageNumber,
-    }));
-  };
+  const setPage = useCallback(
+    (pageNumber: number) => {
+      setParams((prev) => ({
+        ...prev,
+        page: Number(prev?.page ?? 1) + pageNumber,
+      }));
+    },
+    [setParams],
+  );
 
   /**
    * Sets search param and resets page to 1 so paging restarts on new search
    * @param searchParam
    */
-  const setSearch = (searchParam: string) => {
-    setParams((prev) => ({
-      ...prev,
-      search: searchParam,
-      page: 1,
-    }));
-  };
+  const setSearch = useCallback(
+    (searchParam: string) => {
+      setParams((prev) => ({
+        ...prev,
+        search: searchParam,
+        page: 1,
+      }));
+    },
+    [setParams],
+  );
 
-  const setAttribute = (attribute: PersonKeys) => {
-    setParams((prev) => ({
-      ...prev,
-      attribute: attribute,
-    }));
-  };
-
-  /**
-   *
-   * @param url
-   * @returns part of url that is a number
-   */
-  const getCharacterIdFromUrl = (url: string) => {
-    return url.split("/").find((part) => Number(part) > 0);
-  };
+  const setAttribute = useCallback(
+    (attribute: PersonKeys) => {
+      setParams((prev) => ({
+        ...prev,
+        attribute: attribute,
+      }));
+    },
+    [setParams],
+  );
 
   return (
     <div className={"w-full card p-0 justify-between col gap-0"}>

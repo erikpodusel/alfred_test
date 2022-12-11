@@ -9,7 +9,7 @@ export const SearchInput: FC<Props> = ({ onSearch, defaultValue }, props) => {
   /**
    * @param value -> is passed and triggers search after 250ms after last function trigger to reduce request count
    */
-  const handleSearch = useCallback(debounce(onSearch, 250), []);
+  const handleSearch = useCallback(debounce(onSearch, 250), [onSearch]);
 
   return (
     <div className="col w-full sm:w-[unset]">

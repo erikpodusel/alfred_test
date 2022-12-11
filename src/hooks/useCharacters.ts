@@ -1,14 +1,12 @@
-import { swapi } from "../swapi";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PeoplePage, PeopleParams } from "../types";
+import { getPeople } from "../api/characters";
 
 export const useCharacters = (params: PeopleParams | undefined) => {
   const [people, setPeople] = useState<PeoplePage | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setLoading(true);
-
+  const fetchPeople = useCallback(() => {
     getPeople(params)
       .then(({ data }) => {
         setPeople(data);
@@ -17,17 +15,17 @@ export const useCharacters = (params: PeopleParams | undefined) => {
       .finally(() => {
         setLoading(false);
       });
+  }, [params, setPeople]);
+
+  useEffect(() => {
+    setLoading(true);
+
+    fetchPeople();
 
     return () => {
       setPeople(undefined);
     };
-  }, [params]);
-
-  const getPeople = async (params: PeopleParams | undefined): Promise<{ data: PeoplePage }> => {
-    return swapi.get(
-      `people?page=${params?.page ?? 1}&${params?.attribute ?? "search"}=${params?.search ?? ""}`,
-    );
-  };
+  }, [params, fetchPeople]);
 
   return { characters: people, loading };
 };

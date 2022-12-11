@@ -1,15 +1,12 @@
-import { FC, SelectHTMLAttributes } from "react";
+import { FC } from "react";
 
-interface Props extends Omit<SelectHTMLAttributes<HTMLSelectElement>, "onSelect" | "onChange"> {
+interface Props {
   onSelect: (attribute: string) => void;
   attributes: string[];
+  value: string | undefined;
 }
 
 export const AttributeSelect: FC<Props> = ({ value, onSelect, attributes }, props) => {
-  const handleChange = (attribute: string) => {
-    onSelect(attribute);
-  };
-
   return (
     <div className={"col w-full sm:w-[unset]"}>
       <label htmlFor="Attribute">Attribute</label>
@@ -17,7 +14,7 @@ export const AttributeSelect: FC<Props> = ({ value, onSelect, attributes }, prop
         {...props}
         className={"input"}
         value={value}
-        onChange={({ target: { value } }) => handleChange(value)}
+        onChange={({ target: { value } }) => onSelect(value)}
       >
         <option value={"search"}>Choose attribute</option>
         {attributes?.map((attribute) => (
